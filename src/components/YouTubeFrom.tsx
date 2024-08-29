@@ -37,7 +37,7 @@ const YouTubeFrom = () => {
   count++; // for checking rerender
 
   const onSubmit = (data: formValue) => {
-    console.log(data);
+    console.log("Form-1:\n", data);
   };
   return (
     <section>

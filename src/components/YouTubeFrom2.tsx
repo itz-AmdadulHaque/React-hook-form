@@ -1,21 +1,16 @@
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
-import { useState } from "react";
 
 // form type
 type formValue = {
-  username: string;
-  email: string;
-  channel: string;
-  social: {
-    facebook: string;
-    tweeter: string;
-  };
-  phoneNumbers: string[];
+  name: string;
+  age: number;
+  birth: string;
+  phone: { number: string }[];
 };
 
-let count = 0; // for chekcing component rerender
 const YouTubeFrom2 = () => {
+  
   const {
     register,
     handleSubmit,
@@ -23,161 +18,101 @@ const YouTubeFrom2 = () => {
     formState: { errors },
   } = useForm<formValue>({
     defaultValues: {
-      username: "",
-      email: "",
-      channel: "",
-      social: {
-        facebook: "",
-        tweeter: "",
-      },
-      phoneNumbers: ["", ""], // fixed two size array, not dynamic
+      name: "",
+      age: 0,
+      birth: new Date().toISOString().substring(0, 10),
+      phone: [], 
     },
   });
 
-  const [custom, setCustom] = useState("");
-  count++; // for checking rerender
+  const { fields, append, remove } = useFieldArray({ name: "phone", control });
 
   const onSubmit = (data: formValue) => {
-    console.log(data);
+    console.log("Form-2:\n", data);
   };
+
   return (
     <section>
-      <p>React hook form does not cause render when inputing form value, Because it does not use controlled component</p>
-      <h1>YouTube Form renderCount({count})</h1>
-
+      <h1>Form-2</h1>
+      <p>Using useFieldArray to add dynamic array input of numbers.</p>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div>
-          <label htmlFor="username">Username</label>
+          <label htmlFor="name">Username</label>
           <input
             type="text"
-            id="username"
-            {...register("username", {
+            id="name"
+            {...register("name", {
               required: {
                 value: true,
-                message: "User name is required",
+                message: "Name is required",
               },
             })}
           />
           {/* register object constructor gives us a obj = {name: "username", ref, onChange, onBlur} */}
-          <p className="error">{errors.username?.message}</p>
+          <p className="error">{errors.name?.message}</p>
         </div>
 
         <div>
-          <label htmlFor="email">E-mail</label>
+          <label htmlFor="age">Age</label>
           <input
-            type="email"
-            {...register("email", {
+            type="number"
+            id= "age"
+            {...register("age", {
+              valueAsNumber: true,
               required: {
                 value: true,
-                message: "Email is required",
+                message: "age is required",
               },
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "invalid email pattern",
-              },
-              validate: (fieldValue) => {
-                if (fieldValue === "admin@gmail.com")
-                  return "Enter a different email";
-              }, //custom validation, you enter any email except admin
             })}
           />
-          <p className="error">{errors.email?.message}</p>
+          <p className="error">{errors.age?.message}</p>
         </div>
 
-        <div>
-          <label htmlFor="channel">Channel</label>
+        <div className="form-control">
+          <label htmlFor="birth">Date of Birth</label>
           <input
-            type="text"
-            id="channel"
-            {...register("channel", {
+            type="date"
+            id= "birth"
+            {...register("birth", {
+              valueAsDate: true,
               required: {
                 value: true,
-                message: "User name is required",
+                message: "Birth of date is required",
               },
             })}
           />
-          <p className="error">{errors.channel?.message}</p>
+          <p className="error">{errors.birth?.message}</p>
         </div>
 
-        {/* nested object value */}
-        <div>
-          <label htmlFor="facebook">Facebook</label>
-          <input
-            type="text"
-            id="facebook"
-            {...register("social.facebook", {
-              required: {
-                value: true,
-                message: "Facebook field is required",
-              },
-            })}
-          />
-          <p className="error">{errors.social?.facebook?.message}</p>
+        {/* dynamic array value */}
+        <div className="form-control">
+          <button type="button" onClick={() => append({ number: "" })}>
+            Click to add numbers
+          </button>
+          {fields.map((field, index) => (
+            <div key={field.id}>
+              <label htmlFor={field.id}>Phon Number-{index + 1}</label>
+              <input
+                type="text"
+                id={field.id}
+                {...register(`phone.${index}.number` as const, {
+                  required: {
+                    value: true,
+                    message: "Phone number is required",
+                  },
+                })}
+              />
+              <p className="error">{errors.phone?.[index]?.number?.message}</p>
+              <button type="button" onClick={() => remove(index)}>
+                Remove
+              </button>
+            </div>
+          ))}
         </div>
 
-        <div>
-          <label htmlFor="tweeter">Tweeter</label>
-          <input
-            type="text"
-            id="tweeter"
-            {...register("social.tweeter", {
-              required: {
-                value: true,
-                message: "Tweeter field is required",
-              },
-            })}
-          />
-          <p className="error">{errors.social?.tweeter?.message}</p>
-        </div>
-        
-        {/* array value */}
-        <div>
-          <label htmlFor="phonNumber1">Phon Number 1</label>
-          <input
-            type="text"
-            id="phonNumber1"
-            {...register("phoneNumbers.0", {
-              required: {
-                value: true,
-                message: "PhonNumber 1 field is required",
-              },
-            })}
-          />
-          {<p className="error">{errors.phoneNumbers?.[0]?.message}</p>}
-        </div>
-
-        <div>
-          <label htmlFor="phonNumber1">Phon Number 2</label>
-          <input
-            type="text"
-            id="phonNumber2"
-            {...register("phoneNumbers.1", {
-              required: {
-                value: true,
-                message: "PhonNumber 2 field is required",
-              },
-            })}
-          />
-          {<p className="error">{errors.phoneNumbers?.[1]?.message}</p>}
-        </div>
-
-       
-        
-        <button>Submit</button>
+        <button type="submit">Submit</button>
       </form>
       <DevTool control={control} />
-
-      <form action="">
-        <p>
-          {`Custom form cause component rerender(${count/2}) when inputing`}
-        </p>
-        <input
-          id="custom"
-          type="text"
-          value={custom}
-          onChange={(e) => setCustom(e.target.value)}
-        />
-      </form>
     </section>
   );
 };
