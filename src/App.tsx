@@ -1,4 +1,5 @@
 import "./App.css";
+import Form_3 from "./components/Form_3";
 import YouTubeFrom from "./components/YouTubeFrom";
 import YouTubeFrom2 from "./components/YouTubeFrom2";
 
@@ -18,6 +19,7 @@ function App() {
 
       <YouTubeFrom />
       <YouTubeFrom2 />
+      <Form_3/>
     </>
   );
 }

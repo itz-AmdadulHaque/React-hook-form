@@ -1,5 +1,5 @@
 import { useFieldArray, useForm } from "react-hook-form";
-// import { DevTool } from "@hookform/devtools";
+import { DevTool } from "@hookform/devtools";
 
 // form type
 type formValue = {
@@ -9,12 +9,12 @@ type formValue = {
   phone: { number: string }[];
 };
 
-const YouTubeFrom2 = () => {
+const Form_3 = () => {
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isDirty, isValid },
   } = useForm<formValue>({
     defaultValues: {
       name: "",
@@ -27,19 +27,13 @@ const YouTubeFrom2 = () => {
   const { fields, append, remove } = useFieldArray({ name: "phone", control });
 
   const onSubmit = (data: formValue) => {
-    console.log("Form-2:\n", data);
+    console.log("Form-3:\n", data);
   };
 
   return (
     <section>
-      <h1>Form-2</h1>
-      <p>
-        Use useFieldArray to add dynamic array elements from input. Click the
-        "Add number" button to add values and see the output in the terminal.
-        Note that age is a number, and date is a Date type. It's generally
-        recommended to send date values as strings (e.g., ISO 8601 format) to
-        the backend.
-      </p>
+      <h1>Form-3</h1>
+      <p>Using useFieldArray to add dynamic array input of numbers.</p>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <div>
           <label htmlFor="name">Username</label>
@@ -51,6 +45,10 @@ const YouTubeFrom2 = () => {
                 value: true,
                 message: "Name is required",
               },
+              minLength: {
+                value: 3, 
+                message: "Name must be at least 3 character long"
+              }
             })}
           />
           {/* register object constructor gives us a obj = {name: "username", ref, onChange, onBlur} */}
@@ -79,7 +77,6 @@ const YouTubeFrom2 = () => {
             type="date"
             id="birth"
             {...register("birth", {
-              valueAsDate: true,
               required: {
                 value: true,
                 message: "Birth of date is required",
@@ -115,11 +112,13 @@ const YouTubeFrom2 = () => {
           ))}
         </div>
 
-        <button type="submit">Submit</button>
+        <button disabled={!isDirty || !isValid}  type="submit">
+          Submit
+        </button>
       </form>
-      {/* <DevTool control={control} /> */}
+      <DevTool control={control} />
     </section>
   );
 };
 
-export default YouTubeFrom2;
+export default Form_3;
